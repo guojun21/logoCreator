@@ -1,0 +1,33 @@
+.canvas-container {
+  position: relative;
+  background: repeating-conic-gradient(#2a2a2a 0% 25%, #1f1f1f 0% 50%) 
+              50% / 20px 20px;
+  border-radius: 16px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6),
+              0 4px 16px rgba(0, 0, 0, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+
+.canvas-container canvas {
+  display: block;
+  border-radius: 8px;
+}
+
+.size-indicator {
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  background: var(--bg-tertiary);
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-family: 'SF Mono', 'Monaco', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
