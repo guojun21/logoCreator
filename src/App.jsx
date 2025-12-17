@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react'
 import './App.css'
 import CanvasPreview from './components/CanvasPreview'
 import ControlPanel from './components/ControlPanel'
+import AILogoGenerator from './components/AILogoGenerator'
 
 function App() {
   // Canvas 设置（固定）
@@ -129,6 +130,11 @@ function App() {
     setLogoMarkSettings(prev => ({ ...prev, image: null }))
   }, [])
 
+  // 处理 AI 生成的 logo mark
+  const handleLogoGenerated = useCallback((imageData) => {
+    setLogoMarkSettings(prev => ({ ...prev, image: imageData }))
+  }, [])
+
   return (
     <div className="app">
       <header className="app-header">
@@ -174,6 +180,8 @@ function App() {
         </div>
         
         <div className="control-section">
+          <AILogoGenerator onLogoGenerated={handleLogoGenerated} />
+          
           <ControlPanel
             squircleSettings={squircleSettings}
             setSquircleSettings={setSquircleSettings}

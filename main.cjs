@@ -23,11 +23,39 @@ async function createWindow() {
   // 开发环境加载 vite 服务器
   const isDev = !app.isPackaged
   if (isDev) {
-    // 直接加载 Vite 服务器，端口 5199
-    const devUrl = 'http://127.0.0.1:5199'
-    console.log(`Loading Vite dev server: ${devUrl}`)
+    // 尝试找到可用的 Vite 服务器端口（5173, 5199-5210）
+    const http = require('http')
+    let devUrl = null
+    const ports = [5173, 5199, 5200, 5201, 5202, 5203, 5204, 5205, 5206, 5207, 5208, 5209, 5210]
+    
+    for (let port of ports) {
+      try {
+        await new Promise((resolve, reject) => {
+          const req = http.get(`http://127.0.0.1:${port}`, (res) => {
+            resolve()
+          })
+          req.on('error', reject)
+          req.setTimeout(1000, () => {
+            req.destroy()
+            reject(new Error('timeout'))
+          })
+        })
+        devUrl = `http://127.0.0.1:${port}`
+        console.log(`✅ Found Vite dev server at: ${devUrl}`)
+        break
+      } catch (err) {
+        // 继续尝试下一个端口
+      }
+    }
+    
+    if (!devUrl) {
+      devUrl = 'http://127.0.0.1:5173'
+      console.log(`⚠️ Using default URL: ${devUrl}`)
+    }
+    
+    console.log(`🚀 Loading Vite dev server: ${devUrl}`)
     await mainWindow.loadURL(devUrl)
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools() // 注释掉以避免覆盖内容
   } else {
     mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'))
   }
@@ -139,6 +167,64 @@ ipcMain.handle('export-icns', async (event, dataUrl) => {
   } catch (error) {
     console.error('ICNS 导出失败:', error)
     return { success: false, error: error.message }
+  }
+})
+
+// IPC: 选择文件夹
+ipcMain.handle('select-folder', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory'],
+    buttonLabel: 'Select'
+  })
+  
+  if (result.canceled || result.filePaths.length === 0) {
+    return null
+  }
+  
+  return result.filePaths[0]
+})
+
+// IPC: 读取项目信息
+ipcMain.handle('read-project-info', async (event, projectPath) => {
+  try {
+    const projectName = path.basename(projectPath)
+    const packageJsonPath = path.join(projectPath, 'package.json')
+    let description = `A project: ${projectName}`
+    
+    // 尝试从 package.json 读取描述
+    if (fs.existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
+        if (packageJson.description) {
+          description = packageJson.description
+        }
+      } catch (err) {
+        console.error('Failed to parse package.json:', err)
+      }
+    }
+    
+    // 尝试从 README.md 读取描述
+    const readmePath = path.join(projectPath, 'README.md')
+    if (fs.existsSync(readmePath)) {
+      try {
+        const readmeContent = fs.readFileSync(readmePath, 'utf8')
+        const firstLine = readmeContent.split('\n')[0]
+        if (firstLine && firstLine.trim()) {
+          description = firstLine.replace(/^#+\s*/, '').trim()
+        }
+      } catch (err) {
+        console.error('Failed to read README.md:', err)
+      }
+    }
+    
+    return {
+      name: projectName,
+      path: projectPath,
+      description: description
+    }
+  } catch (error) {
+    console.error('Failed to read project info:', error)
+    throw error
   }
 })
 
