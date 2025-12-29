@@ -3,12 +3,32 @@
   "version": "1.0.0",
   "description": "macOS 图标创建工具",
   "main": "main.cjs",
+  "author": "oasmet",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "electron": "electron .",
-    "electron:dev": "concurrently \"vite --port 5199 --strictPort\" \"wait-on http://localhost:5199 && electron .\""
+    "electron:dev": "concurrently \"vite --port 5230 --strictPort\" \"wait-on http://127.0.0.1:5230 && electron .\"",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "com.oasmet.logo-creator",
+    "productName": "Logo Creator",
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "icon": "icon.icns",
+      "target": "dir"
+    },
+    "files": [
+      "dist/**/*",
+      "main.cjs",
+      "preload.cjs"
+    ],
+    "directories": {
+      "output": "release"
+    }
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -18,8 +38,8 @@
     "@vitejs/plugin-react": "^3.1.0",
     "concurrently": "^8.2.2",
     "electron": "^28.0.0",
+    "electron-builder": "^26.0.12",
     "vite": "^4.5.0",
     "wait-on": "^7.2.0"
   }
 }
-

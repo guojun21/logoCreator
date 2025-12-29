@@ -26,7 +26,7 @@ async function createWindow() {
     // 尝试找到可用的 Vite 服务器端口（5173, 5199-5210）
     const http = require('http')
     let devUrl = null
-    const ports = [5173, 5199, 5200, 5201, 5202, 5203, 5204, 5205, 5206, 5207, 5208, 5209, 5210]
+  const ports = [5230, 5173, 5199, 5200, 5201, 5202, 5203, 5204, 5205, 5206, 5207, 5208, 5209, 5210]
     
     for (let port of ports) {
       try {
@@ -49,7 +49,7 @@ async function createWindow() {
     }
     
     if (!devUrl) {
-      devUrl = 'http://127.0.0.1:5173'
+    devUrl = 'http://127.0.0.1:5230'
       console.log(`⚠️ Using default URL: ${devUrl}`)
     }
     
